@@ -263,7 +263,7 @@ def create_app(test_config=None):
                 'error': 400,
                 'message': 'Bad request'
             }
-        )
+        ), 400
 
     @app.errorhandler(422)
     def unprocessable(error):
@@ -273,6 +273,6 @@ def create_app(test_config=None):
                 'error': 422,
                 'message': 'Unprocessable'
             }
-        )
+        ), 422
     return app
 
