@@ -78,6 +78,7 @@ def create_app(test_config=None):
     def retrieve_questions():
         selection = Question.query.order_by(Question.id).all()
         current_questions = paginate_questions(request, selection)
+        categories = Category.query.order_by(Category.type).all()
 
         if len(current_questions) == 0:
             abort(404)
@@ -86,7 +87,8 @@ def create_app(test_config=None):
                 {
                     "success": True,
                     "questions": current_questions,
-                    "total_questions": len(Question.query.all())
+                    "total_questions": len(Question.query.all()),
+                    "categories": {category.id: category.type for category in categories}
                 }
             )
 
@@ -162,7 +164,7 @@ def create_app(test_config=None):
             question.insert()
 
             selection = Question.query.order_by(Question.id).all()
-            current_questions = paginate_books(request, selection)
+            current_questions = paginate_questions(request, selection)
 
             return jsonify(
                 {
@@ -237,7 +239,7 @@ def create_app(test_config=None):
     and shown whether they were correct or not.
     """
 
-    @app.route('/test')
+    @app.route('/test', methods=['POST'])
     def retrieve_quiz_question():
         data = dict(request.form or request.json or request.data)
         category = data.get("quiz_category")
