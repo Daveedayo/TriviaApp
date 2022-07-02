@@ -237,8 +237,36 @@ def create_app(test_config=None):
     and shown whether they were correct or not.
     """
 
+    @app.route('/test')
+    def retrieve_quiz_question():
+        data = dict(request.form or request.json or request.data)
+        category = data.get("quiz_category")
+                
+        previous_questions = data.get("previous_questions", [])
 
+        try:
+            if category['id'] == 0:
+                selected_question = Question.query.filter(
+                    Question.id.notin_(previous_questions)
+                ).limit(1).one_or_none()
+            else:
+                selected_question = Question.query.filter_by(category=category["id"]).filter(
+                    Question.id.notin_(previous_questions)
+                ).limit(1).one_or_none()
 
+            if selected_question:
+                return jsonify({
+                    'success': True,
+                    'question': selected_question.format()
+                })
+            else:
+                return json.dumps({
+                    'success': False,
+                    'error': 'Question not found.'
+                }), 404
+
+        except:
+            abort(400)
     """
     @TODO:
     Create error handlers for all expected errors
